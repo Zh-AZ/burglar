@@ -7,7 +7,9 @@ using Random = System.Random;
 public class PickingALock : MonoBehaviour
 {
     [SerializeField] private Text timeText;
-    [SerializeField] private GameObject message;
+    [SerializeField] private Text wastedTime;
+    [SerializeField] private GameObject winMessage;
+    [SerializeField] private GameObject loseMessage;
 
     [SerializeField] private Text firstPinText;
     [SerializeField] private Text secondPinText;
@@ -24,38 +26,75 @@ public class PickingALock : MonoBehaviour
 
     Random random = new Random();
     float timer = 100;
+    float tempTimer;
 
-    public void ClickButtonDrill()
+    public void ClickButtonTools(int num)
     {
-        pins[0] += drill[0];
-        pins[1] += drill[1];
-        pins[2] += drill[2];
-
-        if (!CheckRangePinsExceed(drill))
-            ShowChangedPins();
+        if (num == 0)
+            UseTool(drill, "drill");         
+        else if (num == 1)
+            UseTool(lockpick, "lockpick");
+        else
+            UseTool(hammer, "hammer");
     }
 
-    public void ClickButtonLockpick()
+    public void UseTool(int[] tool, string toolName)
     {
-        pins[0] += lockpick[0];
-        pins[1] += lockpick[1];
-        pins[2] += lockpick[2];
+        ReturnToolColor();
 
-        if (!CheckRangePinsExceed(lockpick))
+        pins[0] += tool[0];
+        pins[1] += tool[1];
+        pins[2] += tool[2];
+
+        if (!CheckRangePinsExceed(tool, toolName))
             ShowChangedPins();
+
+        Win();
     }
 
-    public void ClickButtonHammer()
-    {
-        pins[0] += hammer[0];
-        pins[1] += hammer[1];
-        pins[2] += hammer[2];
+    //public void ClickButtonDrill()
+    //{
+    //    AssignColor();
 
-        if (!CheckRangePinsExceed(hammer))
-            ShowChangedPins();
-    }
+    //    pins[0] += drill[0];
+    //    pins[1] += drill[1];
+    //    pins[2] += drill[2];
+
+    //    if (!CheckRangePinsExceed(drill, "drill"))
+    //        ShowChangedPins();
+       
+    //    Win();
+    //}
+
+    //public void ClickButtonLockpick()
+    //{
+    //    AssignColor();
+
+    //    pins[0] += lockpick[0];
+    //    pins[1] += lockpick[1];
+    //    pins[2] += lockpick[2];
+
+    //    if (!CheckRangePinsExceed(lockpick, "lockpick"))
+    //        ShowChangedPins();
+        
+    //    Win();
+    //}
+
+    //public void ClickButtonHammer()
+    //{
+    //    AssignColor();
+
+    //    pins[0] += hammer[0];
+    //    pins[1] += hammer[1];
+    //    pins[2] += hammer[2];
+
+    //    if (!CheckRangePinsExceed(hammer, "hammer"))
+    //        ShowChangedPins();
+        
+    //    Win();
+    //}
     
-    private bool CheckRangePinsExceed(int[] tool)
+    private bool CheckRangePinsExceed(int[] tool, string toolName)
     {
         bool isRangeExceed = false; 
 
@@ -67,11 +106,54 @@ public class PickingALock : MonoBehaviour
                 pins[0] -= tool[0];
                 pins[1] -= tool[1];
                 pins[2] -= tool[2];
+
+                if (i == 0)
+                {
+                    firstPinText.color = Color.red;
+
+                    if (toolName == "drill")
+                        drillText.text = $"<color=red>{drill[0]}</color> | {drill[1]} | {drill[2]}";
+                    else if (toolName == "lockpick")
+                        lockpickText.text = $"<color=red>{lockpick[0]}</color> | {lockpick[1]} | {lockpick[2]}";
+                    else
+                        hammerText.text = $"<color=red>{hammer[0]}</color> | {hammer[1]} | {hammer[2]}";
+                }
+                else if (i == 1)
+                {
+                    secondPinText.color = Color.red;
+
+                    if (toolName == "drill")
+                        drillText.text = $"{drill[0]} | <color=red>{drill[1]}</color> | {drill[2]}";
+                    else if (toolName == "lockpick")
+                        lockpickText.text = $"{lockpick[0]} | <color=red>{lockpick[1]}</color> | {lockpick[2]}";
+                    else
+                        hammerText.text = $"{hammer[0]} | <color=red>{hammer[1]}</color> | {hammer[2]}";
+                }
+                else
+                {
+                    thirdPinText.color = Color.red;
+
+                    if (toolName == "drill")
+                        drillText.text = $"{drill[0]} | {drill[1]} | <color=red>{drill[2]}</color>";
+                    else if (toolName == "lockpick")
+                        lockpickText.text = $"{lockpick[0]} | {lockpick[1]} | <color=red>{lockpick[2]}</color>";
+                    else
+                        hammerText.text = $"{hammer[0]} | {hammer[1]} | <color=red>{hammer[2]}</color>";
+                }
                 break;
             }
         }
         return isRangeExceed;
     }
+
+    //private void AssignColor()
+    //{
+    //    firstPinText.color = Color.black;
+    //    secondPinText.color = Color.black;
+    //    thirdPinText.color = Color.black;
+
+    //    ReturnToolColor();
+    //}
 
     private void ShowChangedPins()
     {
@@ -109,16 +191,37 @@ public class PickingALock : MonoBehaviour
         for (int i = 0; i < hammer.Length; i++)
             hammer[i] = random.Next(-1, 3);
 
-        drillText.text = $"{drill[0]} | {drill[1]} | {drill[2]}";
-        lockpickText.text = $"{lockpick[0]} | {lockpick[1]} | {lockpick[2]}";
-        hammerText.text = $"{hammer[0]} | {hammer[1]} | {hammer[2]}" ;
+        ReturnToolColor();
     }
 
     public void Restart()
     {
         FillInRandomly();
-        message.SetActive(false);
+        winMessage.SetActive(false);
+        loseMessage.SetActive(false);
         timer = 100;
+        tempTimer = 0;
+        ReturnToolColor();
+    }
+    
+    private void ReturnToolColor()
+    {
+        drillText.text = $"{drill[0]} | {drill[1]} | {drill[2]}";
+        lockpickText.text = $"{lockpick[0]} | {lockpick[1]} | {lockpick[2]}";
+        hammerText.text = $"{hammer[0]} | {hammer[1]} | {hammer[2]}";
+
+        firstPinText.color = Color.black;
+        secondPinText.color = Color.black;
+        thirdPinText.color = Color.black;
+    }
+
+    private void Win()
+    {
+        if (pins[0] == pins[1] && pins[0] == pins[2])
+        {
+            winMessage.SetActive(true);
+            wastedTime.text = $"Потрачено {Mathf.Round(tempTimer)} секунд";
+        }
     }
 
     // Start is called before the first frame update
@@ -130,14 +233,20 @@ public class PickingALock : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (timer != 0)
+        if (!winMessage.activeSelf && !loseMessage.activeSelf)
         {
-            timeText.text = timer.ToString();
-            timer = 100 - Mathf.Round(Time.time);
-        }
-        else
-        {
-            message.SetActive(true);
+            tempTimer += Time.deltaTime;
+            //wastedTime.text = $"Потрачено {Mathf.Round(tempTimer)} секунд";
+
+            if (timer >= 0)
+            {
+                timeText.text = timer.ToString();
+                timer = 100 - Mathf.Round(tempTimer);
+            }
+            else
+            {
+                loseMessage.SetActive(true);
+            }
         }
     }
 }
