@@ -8,6 +8,8 @@ public class PickingALock : MonoBehaviour
 {
     [SerializeField] private Text timeText;
     [SerializeField] private Text wastedTime;
+    [SerializeField] private Text hacked;
+
     [SerializeField] private GameObject winMessage;
     [SerializeField] private GameObject loseMessage;
 
@@ -27,15 +29,16 @@ public class PickingALock : MonoBehaviour
     Random random = new Random();
     float timer = 100;
     float tempTimer;
+    int hackedCount;
 
-    public void ClickButtonTools(int num)
+    public void ClickButtonTools(string toolName)
     {
-        if (num == 0)
-            UseTool(drill, "drill");         
-        else if (num == 1)
-            UseTool(lockpick, "lockpick");
+        if (toolName == "drill")
+            UseTool(drill, toolName);         
+        else if (toolName == "lockpick")
+            UseTool(lockpick, toolName);
         else
-            UseTool(hammer, "hammer");
+            UseTool(hammer, toolName);
     }
 
     public void UseTool(int[] tool, string toolName)
@@ -182,14 +185,30 @@ public class PickingALock : MonoBehaviour
                 thirdPinText.text = pins[i].ToString();
         }
 
+        ChangeTools();
+
+        //for (int i = 0; i < drill.Length; i++)
+        //    drill[i] = random.Next(-2, 3);
+
+        //for (int i = 0; i < lockpick.Length; i++)
+        //    lockpick[i] = random.Next(-2, 3); //-2, 3
+
+        //for (int i = 0; i < hammer.Length; i++)
+        //    hammer[i] = random.Next(-2, 3);
+
+        //ReturnToolColor();
+    }
+
+    public void ChangeTools()
+    {
         for (int i = 0; i < drill.Length; i++)
-            drill[i] = random.Next(-1, 3);
+            drill[i] = random.Next(-2, 3);
 
         for (int i = 0; i < lockpick.Length; i++)
-            lockpick[i] = random.Next(-1, 3);
+            lockpick[i] = random.Next(-2, 3); //-2, 3
 
         for (int i = 0; i < hammer.Length; i++)
-            hammer[i] = random.Next(-1, 3);
+            hammer[i] = random.Next(-2, 3);
 
         ReturnToolColor();
     }
@@ -221,6 +240,7 @@ public class PickingALock : MonoBehaviour
         {
             winMessage.SetActive(true);
             wastedTime.text = $"Потрачено {Mathf.Round(tempTimer)} секунд";
+            hacked.text = $"Взломано замков: {++hackedCount}";
         }
     }
 
@@ -246,6 +266,8 @@ public class PickingALock : MonoBehaviour
             else
             {
                 loseMessage.SetActive(true);
+                hackedCount = 0;
+                hacked.text = $"Взломано замков: {hackedCount}";
             }
         }
     }
