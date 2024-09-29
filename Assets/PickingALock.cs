@@ -6,9 +6,14 @@ using Random = System.Random;
 
 public class PickingALock : MonoBehaviour
 {
+    [SerializeField] private Sprite[] sprites;
+    [SerializeField] private Image background;
+    [SerializeField] private Button[] buttons;
+
     [SerializeField] private Text timeText;
     [SerializeField] private Text wastedTime;
     [SerializeField] private Text hacked;
+    [SerializeField] private Text hackedLose;
 
     [SerializeField] private GameObject winMessage;
     [SerializeField] private GameObject loseMessage;
@@ -54,49 +59,13 @@ public class PickingALock : MonoBehaviour
 
         Win();
     }
-
-    //public void ClickButtonDrill()
-    //{
-    //    AssignColor();
-
-    //    pins[0] += drill[0];
-    //    pins[1] += drill[1];
-    //    pins[2] += drill[2];
-
-    //    if (!CheckRangePinsExceed(drill, "drill"))
-    //        ShowChangedPins();
-       
-    //    Win();
-    //}
-
-    //public void ClickButtonLockpick()
-    //{
-    //    AssignColor();
-
-    //    pins[0] += lockpick[0];
-    //    pins[1] += lockpick[1];
-    //    pins[2] += lockpick[2];
-
-    //    if (!CheckRangePinsExceed(lockpick, "lockpick"))
-    //        ShowChangedPins();
-        
-    //    Win();
-    //}
-
-    //public void ClickButtonHammer()
-    //{
-    //    AssignColor();
-
-    //    pins[0] += hammer[0];
-    //    pins[1] += hammer[1];
-    //    pins[2] += hammer[2];
-
-    //    if (!CheckRangePinsExceed(hammer, "hammer"))
-    //        ShowChangedPins();
-        
-    //    Win();
-    //}
     
+    /// <summary>
+    /// Проверка на превышение диапазона пинов и указание превышающих чисел
+    /// </summary>
+    /// <param name="tool"></param>
+    /// <param name="toolName"></param>
+    /// <returns></returns>
     private bool CheckRangePinsExceed(int[] tool, string toolName)
     {
         bool isRangeExceed = false; 
@@ -149,15 +118,6 @@ public class PickingALock : MonoBehaviour
         return isRangeExceed;
     }
 
-    //private void AssignColor()
-    //{
-    //    firstPinText.color = Color.black;
-    //    secondPinText.color = Color.black;
-    //    thirdPinText.color = Color.black;
-
-    //    ReturnToolColor();
-    //}
-
     private void ShowChangedPins()
     {
         for (int i = 0; i < pins.Length; i++)
@@ -186,17 +146,6 @@ public class PickingALock : MonoBehaviour
         }
 
         ChangeTools();
-
-        //for (int i = 0; i < drill.Length; i++)
-        //    drill[i] = random.Next(-2, 3);
-
-        //for (int i = 0; i < lockpick.Length; i++)
-        //    lockpick[i] = random.Next(-2, 3); //-2, 3
-
-        //for (int i = 0; i < hammer.Length; i++)
-        //    hammer[i] = random.Next(-2, 3);
-
-        //ReturnToolColor();
     }
 
     public void ChangeTools()
@@ -205,7 +154,7 @@ public class PickingALock : MonoBehaviour
             drill[i] = random.Next(-2, 3);
 
         for (int i = 0; i < lockpick.Length; i++)
-            lockpick[i] = random.Next(-2, 3); //-2, 3
+            lockpick[i] = random.Next(-2, 3); 
 
         for (int i = 0; i < hammer.Length; i++)
             hammer[i] = random.Next(-2, 3);
@@ -221,6 +170,8 @@ public class PickingALock : MonoBehaviour
         timer = 100;
         tempTimer = 0;
         ReturnToolColor();
+        Assignbackground();
+        LockUnlockButtons();
     }
     
     private void ReturnToolColor()
@@ -229,9 +180,9 @@ public class PickingALock : MonoBehaviour
         lockpickText.text = $"{lockpick[0]} | {lockpick[1]} | {lockpick[2]}";
         hammerText.text = $"{hammer[0]} | {hammer[1]} | {hammer[2]}";
 
-        firstPinText.color = Color.black;
-        secondPinText.color = Color.black;
-        thirdPinText.color = Color.black;
+        firstPinText.color = Color.white;
+        secondPinText.color = Color.white;
+        thirdPinText.color = Color.white;
     }
 
     private void Win()
@@ -241,6 +192,23 @@ public class PickingALock : MonoBehaviour
             winMessage.SetActive(true);
             wastedTime.text = $"Потрачено {Mathf.Round(tempTimer)} секунд";
             hacked.text = $"Взломано замков: {++hackedCount}";
+            LockUnlockButtons();
+        }
+    }
+
+    private void Assignbackground()
+    {
+        background.sprite = sprites[random.Next(sprites.Length)];
+    }
+
+    private void LockUnlockButtons()
+    {
+        foreach (Button button in buttons)
+        {
+            if (button.interactable)
+                button.interactable = false;
+            else
+                button.interactable = true;
         }
     }
 
@@ -256,7 +224,6 @@ public class PickingALock : MonoBehaviour
         if (!winMessage.activeSelf && !loseMessage.activeSelf)
         {
             tempTimer += Time.deltaTime;
-            //wastedTime.text = $"Потрачено {Mathf.Round(tempTimer)} секунд";
 
             if (timer >= 0)
             {
@@ -266,8 +233,10 @@ public class PickingALock : MonoBehaviour
             else
             {
                 loseMessage.SetActive(true);
+                hackedLose.text = $"Вами взломано {hackedCount} замков";
                 hackedCount = 0;
                 hacked.text = $"Взломано замков: {hackedCount}";
+                LockUnlockButtons();
             }
         }
     }
